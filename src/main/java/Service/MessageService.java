@@ -2,24 +2,31 @@ package Service;
 
 import java.util.ArrayList;
 
+import DAO.AccountDAO;
 import DAO.MessageDAO;
 import Model.Message;
 
 public class MessageService {
     public MessageDAO messageDAO;
+    public AccountDAO accountDAO;
 
     public MessageService(){
         messageDAO = new MessageDAO();
+        accountDAO = new AccountDAO();
     }
 
-    public MessageService(MessageDAO messageDAO){
+    public MessageService(MessageDAO messageDAO, AccountDAO accountDAO){
         this.messageDAO = messageDAO;
+        this.accountDAO = accountDAO;
     }
 
     // Create Message Service
-    public Message createMessage(){
-        // Todo this requires userDAO, refer to readme #3 for clarification
-        // this will require you to figure out how to query the newly created message without explicitly knowing the id, unsure if i need to alter the DAO or not. TOO SLEEPY CURRENTLY TO FIGURE IT OUT, YOU GOT THIS FUTURE ME. IM MAKING THE COMMIT NOW GOODNIGHT.
+    public Message createMessage(Message message){
+        if(accountDAO.fetchAccountByID(message.posted_by) != null && !message.message_text.isBlank() && message.message_text.length() <= 255){
+           int id =  messageDAO.createMessage(message);
+           return messageDAO.fetchMessagesByMessageID(id);
+        }
+        
         return null;
     }
 
@@ -41,6 +48,9 @@ public class MessageService {
 
     // Update Message By Message ID
     public Message updateMessage(int id, String text){
+            if(messageDAO.fetchMessagesByMessageID(id) == null || text.length() > 255 || text.isBlank()){
+                return null;
+            }
             messageDAO.updateMessage(id, text);
 
             // if the id does not exist this will return false which is the same thing as saying the update was unsuccessful

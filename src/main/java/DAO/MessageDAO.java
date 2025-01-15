@@ -1,10 +1,8 @@
 package DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.*;
+
 
 import Model.Message;
 import Util.ConnectionUtil;
@@ -25,12 +23,11 @@ public class MessageDAO {
                 Message message = new Message(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getLong(4));
                 output.add(message);
             }
-            return output;
             
         } catch (SQLException e) {
            e.printStackTrace();
         }
-        return null;
+        return output;
     }
 
     // SELECT ALL MESSAGES BY USER
@@ -108,20 +105,33 @@ public class MessageDAO {
         }
     }
     
-    // CREATE MESSAGE 
-    public void createMessage(Message message){
-        Connection connection = ConnectionUtil.getConnection();
-        try {
-            PreparedStatement ps = connection.prepareStatement("Insert into message(posted_by,message_text,time_posted_epoch) values(?,?,?)"); 
-            ps.setInt(1, message.posted_by);
-            ps.setString(2, message.message_text);
-            ps.setLong(3,message.time_posted_epoch);
-            ps.executeUpdate();
-            System.out.println("Successfully created message");
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Message creation failed");            
+    // CREATE MESSAGE: Returns message ID if successful, -1 if unsuccessful
+public int createMessage(Message message) {
+    Connection connection = ConnectionUtil.getConnection();
+    try {
+        // Include Statement.RETURN_GENERATED_KEYS to retrieve the auto-generated keys
+        PreparedStatement ps = connection.prepareStatement(
+            "INSERT INTO message(posted_by, message_text, time_posted_epoch) VALUES(?, ?, ?)", 
+            Statement.RETURN_GENERATED_KEYS
+        );
+        ps.setInt(1, message.posted_by);
+        ps.setString(2, message.message_text);
+        ps.setLong(3, message.time_posted_epoch);
+
+        int rowsAffected = ps.executeUpdate();
+        if (rowsAffected > 0) {
+            // Retrieve the generated keys
+            ResultSet rsKeys = ps.getGeneratedKeys();
+            if (rsKeys.next()) {
+                return rsKeys.getInt(1); // Return the generated message_id
+            }
         }
+        System.out.println("Successfully created message");
+    } catch (SQLException e) {
+        e.printStackTrace();
+        System.out.println("Message creation failed");
     }
+    return -1; // Return -1 if unsuccessful
+}
+
 }
