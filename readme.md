@@ -1,16 +1,17 @@
 # Project: Social media blog API
 
-## Background 
+## Background
 
 When building a full-stack application, we're typically concerned with both a front end, that displays information to the user and takes in input, and a backend, that manages persisted information.
 
 This project will be a backend for a hypothetical social media app, where we must manage our users’ accounts as well as any messages that they submit to the application. The application will function as a micro-blogging or messaging app. In our hypothetical application, any user should be able to see all of the messages posted to the site, or they can see the messages posted by a particular user. In either case, we require a backend which is able to deliver the data needed to display this information as well as process actions like logins, registrations, message creations, message updates, and message deletions.
 
-## Database Tables 
+## Database Tables
 
 These will be provided in a sql script, and a ConnectionUtil class that will run the sql script is provided:
 
 ### Account
+
 ```
 account_id integer primary key auto_increment,
 username varchar(255) unique,
@@ -18,6 +19,7 @@ password varchar(255)
 ```
 
 ### Message
+
 ```
 message_id integer primary key auto_increment,
 posted_by integer,
@@ -41,7 +43,6 @@ As a user, I should be able to verify my login on the endpoint POST localhost:80
 
 - The login will be successful if and only if the username and password provided in the request body JSON match a real account existing on the database. If successful, the response body should contain a JSON of the account in the response body, including its account_id. The response status should be 200 OK, which is the default.
 - If the login is not successful, the response status should be 401. (Unauthorized)
-
 
 ## 3: Our API should be able to process the creation of new messages.
 
